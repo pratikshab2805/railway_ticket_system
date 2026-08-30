@@ -1,7 +1,11 @@
 # main.py
 
 from routes import ROUTES, TRAIN_TYPES, TRAVEL_CLASSES
-from fare import calculate_passenger_fare, calculate_final_total
+from fare import (
+    calculate_passenger_fare,
+    calculate_final_total,
+    calculate_travel_time
+)
 
 
 def get_positive_integer(prompt):
@@ -24,7 +28,7 @@ def get_positive_integer(prompt):
 
 def get_age(prompt):
     """
-    Get a valid age from the user.
+    Get a valid passenger age.
     """
 
     while True:
@@ -35,7 +39,7 @@ def get_age(prompt):
                 print("Age must be greater than zero.")
 
             elif age > 120:
-                print("Please enter a realistic age.")
+                print("Please enter a valid age.")
 
             else:
                 return age
@@ -46,7 +50,7 @@ def get_age(prompt):
 
 def get_baggage_weight(prompt):
     """
-    Get a valid baggage weight.
+    Get a valid positive baggage weight.
     """
 
     while True:
@@ -64,7 +68,7 @@ def get_baggage_weight(prompt):
 
 def choose_route():
     """
-    Display available routes and allow the user to choose one.
+    Display the available routes and get a valid selection.
     """
 
     route_list = list(ROUTES.keys())
@@ -95,7 +99,7 @@ def choose_route():
 
 def choose_train():
     """
-    Display available train types and get user selection.
+    Display train types and get a valid selection.
     """
 
     train_list = list(TRAIN_TYPES.keys())
@@ -125,7 +129,7 @@ def choose_train():
 
 def choose_class():
     """
-    Display available travel classes and get user selection.
+    Display travel classes and get a valid selection.
     """
 
     class_list = list(TRAVEL_CLASSES.keys())
@@ -135,7 +139,6 @@ def choose_class():
     for index, travel_class in enumerate(class_list, start=1):
 
         multiplier = TRAVEL_CLASSES[travel_class]["multiplier"]
-
         allowance = TRAVEL_CLASSES[travel_class]["baggage_allowance"]
 
         print(
@@ -159,7 +162,7 @@ def choose_class():
 
 def get_passenger_details(passenger_number):
     """
-    Collect all details for one passenger.
+    Collect details for one passenger.
     """
 
     print(f"\n--- Passenger {passenger_number} ---")
@@ -185,30 +188,31 @@ def get_passenger_details(passenger_number):
 
 def main():
     """
-    Main program coordinator.
+    Main coordinator for the Railway Ticket Booking System.
     """
 
     print("=" * 50)
     print("      RAILWAY TICKET BOOKING SYSTEM")
     print("=" * 50)
 
-    # Select route
+    # Route selection
     source, destination = choose_route()
 
     distance = ROUTES[(source, destination)]
 
-    # Select train
+    # Train selection
     train_type = choose_train()
 
-    # Calculate travel time
-    speed = TRAIN_TYPES[train_type]
+    # Travel time calculation is handled by fare.py
+    travel_time = calculate_travel_time(
+        distance,
+        TRAIN_TYPES[train_type]
+    )
 
-    travel_time = distance / speed
-
-    # Select class
+    # Travel class selection
     travel_class = choose_class()
 
-    # Number of passengers
+    # Passenger count
     number_of_passengers = get_positive_integer(
         "\nEnter number of passengers: "
     )
@@ -217,8 +221,11 @@ def main():
 
     subtotal = 0
 
-    # Collect passenger information
-    for passenger_number in range(1, number_of_passengers + 1):
+    # Collect and calculate each passenger's fare
+    for passenger_number in range(
+        1,
+        number_of_passengers + 1
+    ):
 
         passenger = get_passenger_details(
             passenger_number
@@ -241,20 +248,23 @@ def main():
     # Promo code
     print("\nPromo Code")
     print("Available codes:")
-    print("ADG20")
-    print("WINTER500")
+    print("1. ADG20")
+    print("2. WINTER500")
+    print("3. No Promo")
 
     promo_code = input(
         "Enter promo code (press Enter to skip): "
     ).strip().upper()
 
-    if promo_code not in ("", "ADG20", "WINTER500"):
-
+    if promo_code not in (
+        "",
+        "ADG20",
+        "WINTER500"
+    ):
         print("Invalid promo code. No discount applied.")
-
         promo_code = ""
 
-    # Final total
+    # Calculate final amount
     final_total = calculate_final_total(
         subtotal,
         promo_code
@@ -262,7 +272,7 @@ def main():
 
     discount = subtotal - final_total
 
-    # Final booking summary
+    # Booking summary
     print("\n")
     print("=" * 50)
     print("          BOOKING SUMMARY")
@@ -276,19 +286,26 @@ def main():
 
     print("\nPassengers:")
 
-    for index, passenger in enumerate(passengers, start=1):
+    for index, passenger in enumerate(
+        passengers,
+        start=1
+    ):
 
         print(
             f"{index}. {passenger['name']} | "
             f"Age: {passenger['age']} | "
-            f"Baggage: {passenger['baggage_weight']:.2f} kg | "
+            f"Baggage: "
+            f"{passenger['baggage_weight']:.2f} kg | "
             f"Fare: INR {passenger['fare']:.2f}"
         )
 
     print("\n" + "-" * 50)
 
     print(f"Subtotal     : INR {subtotal:.2f}")
-    print(f"Promo Code   : {promo_code if promo_code else 'None'}")
+    print(
+        f"Promo Code   : "
+        f"{promo_code if promo_code else 'None'}"
+    )
     print(f"Discount     : INR {discount:.2f}")
     print(f"Final Total  : INR {final_total:.2f}")
 
