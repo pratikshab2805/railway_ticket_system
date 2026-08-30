@@ -15,7 +15,7 @@ ROUTES = {
 }
 
 
-# Available train types and their average speeds
+# Train types and average speeds
 TRAIN_TYPES = {
     "Superfast": 120,
     "Express": 110,
@@ -23,7 +23,7 @@ TRAIN_TYPES = {
 }
 
 
-# Premium applied based on train type
+# Train premium multipliers
 TRAIN_PREMIUMS = {
     "Superfast": 1.50,
     "Express": 1.25,
@@ -31,7 +31,7 @@ TRAIN_PREMIUMS = {
 }
 
 
-# Flat surcharge based on train type
+# Flat surcharge for each train type
 TRAIN_SURCHARGES = {
     "Superfast": 100,
     "Express": 50,
@@ -39,7 +39,7 @@ TRAIN_SURCHARGES = {
 }
 
 
-# Travel classes
+# Travel classes, fare multipliers and free baggage allowance
 TRAVEL_CLASSES = {
     "Sleeper": {
         "multiplier": 1.0,
