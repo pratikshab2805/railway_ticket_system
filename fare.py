@@ -5,21 +5,18 @@ from routes import TRAIN_PREMIUMS, TRAIN_SURCHARGES, TRAVEL_CLASSES
 
 def calculate_slab_fare(distance):
     """
-    Calculate the base fare using distance slabs.
+    Calculate the fare using the required distance slabs.
     """
 
     fare = 100
 
-    # First 100 km
     if distance <= 100:
         fare += distance * 1.00
 
-    # 101 km to 300 km
     elif distance <= 300:
         fare += 100 * 1.00
         fare += (distance - 100) * 0.80
 
-    # Beyond 300 km
     else:
         fare += 100 * 1.00
         fare += 200 * 0.80
@@ -30,8 +27,8 @@ def calculate_slab_fare(distance):
 
 def apply_senior_discount(fare, age):
     """
-    Apply 40% senior citizen discount
-    if age is strictly greater than 60.
+    Apply a 40% discount if the passenger is
+    strictly above 60 years old.
     """
 
     if age > 60:
@@ -42,7 +39,7 @@ def apply_senior_discount(fare, age):
 
 def apply_train_premium(fare, train_type):
     """
-    Apply the premium associated with the selected train type.
+    Apply the premium based on train type.
     """
 
     premium = TRAIN_PREMIUMS[train_type]
@@ -52,7 +49,7 @@ def apply_train_premium(fare, train_type):
 
 def apply_class_premium(fare, travel_class):
     """
-    Apply the multiplier associated with the selected travel class.
+    Apply the multiplier based on travel class.
     """
 
     multiplier = TRAVEL_CLASSES[travel_class]["multiplier"]
@@ -62,7 +59,7 @@ def apply_class_premium(fare, travel_class):
 
 def calculate_excess_baggage_fee(baggage_weight, travel_class):
     """
-    Calculate baggage penalty.
+    Calculate the excess baggage fee.
 
     INR 15 is charged for every kilogram
     above the free baggage allowance.
@@ -79,10 +76,18 @@ def calculate_excess_baggage_fee(baggage_weight, travel_class):
 
 def calculate_surcharge(train_type):
     """
-    Return the flat surcharge for the selected train type.
+    Return the flat surcharge for the selected train.
     """
 
     return TRAIN_SURCHARGES[train_type]
+
+
+def calculate_travel_time(distance, train_speed):
+    """
+    Calculate travel time in hours.
+    """
+
+    return distance / train_speed
 
 
 def calculate_passenger_fare(
@@ -93,22 +98,23 @@ def calculate_passenger_fare(
     baggage_weight
 ):
     """
-    Calculate the complete fare for one passenger.
+    Calculate the complete fare for one passenger
+    using the six required steps in order.
     """
 
-    # Step 1: Slab Fare
+    # Step 1 - Slab Fare
     fare = calculate_slab_fare(distance)
 
-    # Step 2: Senior Citizen Discount
+    # Step 2 - Senior Citizen Discount
     fare = apply_senior_discount(fare, age)
 
-    # Step 3: Train Premium
+    # Step 3 - Train Premium
     fare = apply_train_premium(fare, train_type)
 
-    # Step 4: Class Premium
+    # Step 4 - Class Premium
     fare = apply_class_premium(fare, travel_class)
 
-    # Step 5: Excess Baggage Fee
+    # Step 5 - Excess Baggage Fee
     baggage_fee = calculate_excess_baggage_fee(
         baggage_weight,
         travel_class
@@ -116,7 +122,7 @@ def calculate_passenger_fare(
 
     fare += baggage_fee
 
-    # Step 6: Flat Surcharge
+    # Step 6 - Flat Surcharge
     surcharge = calculate_surcharge(train_type)
 
     fare += surcharge
@@ -126,7 +132,7 @@ def calculate_passenger_fare(
 
 def calculate_promo_discount(subtotal, promo_code):
     """
-    Calculate discount based on the promotional code.
+    Calculate the discount for the selected promo code.
     """
 
     if promo_code == "ADG20":
@@ -140,7 +146,7 @@ def calculate_promo_discount(subtotal, promo_code):
 
 def calculate_final_total(subtotal, promo_code):
     """
-    Calculate the final amount after applying promo discount.
+    Calculate the final booking total after discount.
     """
 
     discount = calculate_promo_discount(
@@ -150,5 +156,5 @@ def calculate_final_total(subtotal, promo_code):
 
     final_total = subtotal - discount
 
-    # Total should never be negative
+    # Final total must never be negative
     return max(0, final_total)
